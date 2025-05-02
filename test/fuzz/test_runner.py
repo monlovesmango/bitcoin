@@ -330,6 +330,10 @@ def merge_inputs(*, fuzz_pool, corpus, test_list, src_dir, fuzz_bin, merge_dirs)
 
 def run_once(*, fuzz_pool, corpus, test_list, src_dir, fuzz_bin, using_libfuzzer, use_valgrind, empty_min_time):
     jobs = []
+    test_list_count_str = str(len(test_list))
+    progress_count = 0
+    target_max_len = max(len(t) for t in test_list)
+
     for t in test_list:
         corpus_path = corpus / t
         os.makedirs(corpus_path, exist_ok=True)
@@ -366,6 +370,7 @@ def run_once(*, fuzz_pool, corpus, test_list, src_dir, fuzz_bin, using_libfuzzer
     stats = []
     for future in as_completed(jobs):
         output, result, target = future.result()
+        progress_count += 1
         logging.debug(output)
         try:
             result.check_returncode()
@@ -380,6 +385,9 @@ def run_once(*, fuzz_pool, corpus, test_list, src_dir, fuzz_bin, using_libfuzzer
             done_stat = [l for l in output.splitlines() if "DONE" in l]
             assert len(done_stat) == 1
             stats.append((target, done_stat[0]))
+            t = target.ljust(target_max_len + 5)
+            p = f"({str(progress_count)}/{test_list_count_str})".ljust(len(test_list_count_str) * 2 + 3)
+            print(f"{p} {t}{done_stat[0]}")
 
     if using_libfuzzer:
         print("Summary:")
