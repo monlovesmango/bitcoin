@@ -777,7 +777,7 @@ FUZZ_TARGET(txorphanage_sim)
             auto children_from_peer = real->GetChildrenFromSamePeer(txn[tx], peer);
             auto it = children_from_peer.rbegin();
             for (int phase = 0; phase < 2; ++phase) {
-                // First expect all children which have reconsiderable announcement from peer, then the others.
+                // First expect all children without reconsiderable announcement from peer, then the others.
                 for (auto& ann : sim_announcements) {
                     if (ann.announcer != peer) continue;
                     if (ann.reconsider != (phase == 1)) continue;

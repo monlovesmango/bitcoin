@@ -640,8 +640,8 @@ void TxOrphanageImpl::EraseForBlock(const CBlock& block)
     LimitOrphans();
 }
 
-/** Get all children that spend from this tx and were received from nodeid. Sorted from most
- * recent to least recent. */
+/** Get all children that spend from this tx and were received from nodeid. Sorted non-reconsiderable
+ * to reconsiderable, then from most recent to least recent. */
 std::vector<CTransactionRef> TxOrphanageImpl::GetChildrenFromSamePeer(const CTransactionRef& parent, NodeId peer) const
 {
     std::vector<CTransactionRef> children_found;
