@@ -469,11 +469,11 @@ void TxOrphanageImpl::LimitOrphans()
     std::make_heap(heap_peer_dos.begin(), heap_peer_dos.end(), compare_score);
 
     unsigned int num_erased{0};
-    // This outer loop finds the peer with the highest DoS score, which is a fraction of {usage, announcements} used
+    // This outer loop finds the peer with the highest DoS score, which is a fraction of {usage, latency score} used
     // over the respective allowances. We continue until the orphanage is within global limits. That means some peers
     // might still have a DoS score > 1 at the end.
-    // Note: if ratios are the same, FeeFrac tiebreaks by denominator. In practice, since the CPU denominator (number of
-    // announcements) is always lower, this means that a peer with only high number of announcements will be targeted
+    // Note: if ratios are the same, FeeFrac tiebreaks by denominator. In practice, since the CPU denominator (latency
+    // score) is always lower, this means that a peer with only high number of announcements will be targeted
     // before a peer using a lot of memory, even if they have the same ratios.
     do {
         Assume(!heap_peer_dos.empty());
