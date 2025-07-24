@@ -226,9 +226,9 @@ BOOST_AUTO_TEST_CASE(peer_dos_limits)
             orphanage->AddTx(txns.at(i), peer_dosy);
         }
         orphanage->SanityCheck();
-        BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer_dosy), max_announcements);
-        BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer1), 0);
-        BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer2), 0);
+        BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer_dosy), max_announcements);
+        BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer1), 0);
+        BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer2), 0);
 
         // Add 10 unique transactions from peer1.
         // LimitOrphans should evict from peer_dosy, because that's the one exceeding announcement limits.
@@ -237,10 +237,10 @@ BOOST_AUTO_TEST_CASE(peer_dos_limits)
             orphanage->AddTx(txns.at(max_announcements + i), peer1);
             // The announcement limit per peer has halved, but LimitOrphans does not evict beyond what is necessary to
             // bring the total announcements within its global limit.
-            BOOST_CHECK(orphanage->AnnouncementsFromPeer(peer_dosy) > orphanage->MaxPeerLatencyScore());
+            BOOST_CHECK(orphanage->CountAnnouncementsFromPeer(peer_dosy) > orphanage->MaxPeerLatencyScore());
 
-            BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer1), i + 1);
-            BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer_dosy), max_announcements - i - 1);
+            BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer1), i + 1);
+            BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer_dosy), max_announcements - i - 1);
 
             // Evictions are FIFO within a peer, so the ith transaction sent by peer_dosy is the one that was evicted.
             BOOST_CHECK(!orphanage->HaveTx(txns.at(i)->GetWitnessHash()));
@@ -253,9 +253,9 @@ BOOST_AUTO_TEST_CASE(peer_dos_limits)
             orphanage->AddTx(txns.at(i), peer2);
 
             // peer_dosy is still the only one getting evicted
-            BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer_dosy), max_announcements - i - 1);
-            BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer1), num_from_peer1);
-            BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer2), i + 1 - num_from_peer1);
+            BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer_dosy), max_announcements - i - 1);
+            BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer1), num_from_peer1);
+            BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer2), i + 1 - num_from_peer1);
 
             // Evictions are FIFO within a peer, so the ith transaction sent by peer_dosy is the one that was evicted.
             BOOST_CHECK(!orphanage->HaveTxFromPeer(txns.at(i)->GetWitnessHash(), peer_dosy));
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(peer_dos_limits)
             }
         }
         for (NodeId peer{0}; peer < 6; ++peer) {
-            BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer), max_per_peer);
+            BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer), max_per_peer);
         }
         orphanage->SanityCheck();
     }
@@ -361,8 +361,8 @@ BOOST_AUTO_TEST_CASE(peer_dos_limits)
         orphanage->AddTx(ptx_large, peer_large);
 
         // peer_normal should still have 10 transactions, and peer_large should have 1.
-        BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer_normal), 10);
-        BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(peer_large), 1);
+        BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer_normal), 10);
+        BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(peer_large), 1);
         BOOST_CHECK(orphanage->HaveTxFromPeer(ptx_large->GetWitnessHash(), peer_large));
         BOOST_CHECK_EQUAL(orphanage->CountAnnouncements(), 11);
 
@@ -404,11 +404,11 @@ BOOST_AUTO_TEST_CASE(peer_dos_limits)
         BOOST_CHECK_EQUAL(orphanage->TotalLatencyScore(), 25 + 50);
 
         // Peer 0 sent all 20 transactions
-        BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(0), 20);
+        BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(0), 20);
         BOOST_CHECK_EQUAL(orphanage->LatencyScoreFromPeer(0), 20 + 10 * 5);
 
         // Peer 1 sent 5 of the 10 transactions with many inputs
-        BOOST_CHECK_EQUAL(orphanage->AnnouncementsFromPeer(1), 5);
+        BOOST_CHECK_EQUAL(orphanage->CountAnnouncementsFromPeer(1), 5);
         BOOST_CHECK_EQUAL(orphanage->LatencyScoreFromPeer(1), 5 + 5 * 5);
 
         orphanage->SanityCheck();

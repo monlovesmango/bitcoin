@@ -197,7 +197,7 @@ public:
 
     TxOrphanage::Count CountAnnouncements() const override;
     TxOrphanage::Count CountUniqueOrphans() const override;
-    TxOrphanage::Count AnnouncementsFromPeer(NodeId peer) const override;
+    TxOrphanage::Count CountAnnouncementsFromPeer(NodeId peer) const override;
     TxOrphanage::Count LatencyScoreFromPeer(NodeId peer) const override;
     TxOrphanage::Usage UsageByPeer(NodeId peer) const override;
 
@@ -293,7 +293,7 @@ TxOrphanage::Usage TxOrphanageImpl::TotalOrphanUsage() const { return m_unique_o
 
 TxOrphanage::Count TxOrphanageImpl::CountUniqueOrphans() const { return m_unique_orphans; }
 
-TxOrphanage::Count TxOrphanageImpl::AnnouncementsFromPeer(NodeId peer) const {
+TxOrphanage::Count TxOrphanageImpl::CountAnnouncementsFromPeer(NodeId peer) const {
     auto it = m_peer_orphanage_info.find(peer);
     return it == m_peer_orphanage_info.end() ? 0 : it->second.m_count_announcements;
 }

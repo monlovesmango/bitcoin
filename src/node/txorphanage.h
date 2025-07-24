@@ -123,7 +123,7 @@ public:
     virtual Count CountUniqueOrphans() const = 0;
 
     /** Number of orphans stored from this peer. */
-    virtual Count AnnouncementsFromPeer(NodeId peer) const = 0;
+    virtual Count CountAnnouncementsFromPeer(NodeId peer) const = 0;
 
     /** Latency score of transactions announced by this peer. */
     virtual Count LatencyScoreFromPeer(NodeId peer) const = 0;

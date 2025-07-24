@@ -349,7 +349,7 @@ FUZZ_TARGET(txorphan_protected, .init = initialize_orphanage)
                         orphanage->EraseForPeer(peer_id);
                         Assert(orphanage->UsageByPeer(peer_id) == 0);
                         Assert(orphanage->LatencyScoreFromPeer(peer_id) == 0);
-                        Assert(orphanage->AnnouncementsFromPeer(peer_id) == 0);
+                        Assert(orphanage->CountAnnouncementsFromPeer(peer_id) == 0);
                     }
                 }
             );
@@ -804,8 +804,8 @@ FUZZ_TARGET(txorphanage_sim)
         assert(have_reconsider == sim_have_reconsider);
         // UsageByPeer
         assert(usage_by_peer[peer] == real->UsageByPeer(peer));
-        // AnnouncementsFromPeer
-        assert(count_by_peer[peer] == real->AnnouncementsFromPeer(peer));
+        // CountAnnouncementsFromPeer
+        assert(count_by_peer[peer] == real->CountAnnouncementsFromPeer(peer));
     }
     // CountAnnouncements
     assert(sim_announcements.size() == real->CountAnnouncements());
