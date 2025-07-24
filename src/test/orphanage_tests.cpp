@@ -119,10 +119,10 @@ BOOST_AUTO_TEST_CASE(peer_dos_limits)
     {
         // Test latency score limits
         NodeId peer{10};
-        auto orphanage_low_ann = node::MakeTxOrphanage(/*max_global_latency_score=*/5, /*reserved_peer_usage=*/TX_SIZE * 1000);
+        auto orphanage = node::MakeTxOrphanage(/*max_global_latency_score=*/5, /*reserved_peer_usage=*/TX_SIZE * 1000);
 
         // Add the first transaction
-        orphanage_low_ann->AddTx(txns.at(0), peer);
+        orphanage->AddTx(txns.at(0), peer);
 
         // Add 1 more transaction with 45 inputs. Even though there are only 2 announcements, this pushes the orphanage above its maximum latency score.
         std::vector<COutPoint> outpoints_45;
@@ -130,13 +130,13 @@ BOOST_AUTO_TEST_CASE(peer_dos_limits)
             outpoints_45.emplace_back(Txid::FromUint256(det_rand.rand256()), j);
         }
         auto ptx = MakeTransactionSpending(outpoints_45, det_rand);
-        orphanage_low_ann->AddTx(ptx, peer);
+        orphanage->AddTx(ptx, peer);
 
         // The older transaction is evicted.
-        BOOST_CHECK(!orphanage_low_ann->HaveTx(txns.at(0)->GetWitnessHash()));
-        BOOST_CHECK(orphanage_low_ann->HaveTx(ptx->GetWitnessHash()));
+        BOOST_CHECK(!orphanage->HaveTx(txns.at(0)->GetWitnessHash()));
+        BOOST_CHECK(orphanage->HaveTx(ptx->GetWitnessHash()));
 
-        orphanage_low_ann->SanityCheck();
+        orphanage->SanityCheck();
     }
 
     // Single peer: eviction order is FIFO on non-reconsiderable, then reconsiderable orphans.
