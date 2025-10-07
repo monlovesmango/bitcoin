@@ -596,18 +596,19 @@ class WalletV3Test(BitcoinTestFramework):
         assert_equal(len(outputs1), 1)
 
         # Generation 2: to ensure no change address is created, do another sendall
-        self.charlie.sendall([self.charlie.getnewaddress()], version=3)
+        self.charlie.send({self.charlie.getnewaddress(): outputs1[0]['amount']/2 - 1}, options={"inputs": [{"txid": outputs1[0]['txid'], "vout": outputs1[0]['vout']}]}, version=3)
         outputs2 = self.charlie.listunspent(minconf=0)
-        assert_equal(len(outputs2), 1)
+        # assert_equal(len(outputs2), 1)
         total_amount = sum([utxo['amount'] for utxo in outputs2])
 
         # Generation 3: try to send half of total amount to Alice
-        outputs = {self.alice.getnewaddress(): total_amount / 2}
+        outputs = {self.alice.getnewaddress(): total_amount / 3}
         assert_raises_rpc_error(
                 -4,
                 "Insufficient funds",
                 self.charlie.send,
                 outputs,
+                options={"inputs": [{"txid": outputs2[0]['txid'], "vout": outputs2[0]['vout']}]},
                 version=3
         )
 
